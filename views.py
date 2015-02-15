@@ -6,6 +6,9 @@ from gibberish import app, celery, Session, GibData, prep_data, sanitize, this_m
 
 @celery.task(bind=True)
 def _eval_model(self, text):
+    message = "calculating..."
+    self.update_state(state='PROGRESS',
+                     meta={'current':0, 'total': 1, 'status':message})
     safe_text = sanitize(text)
     #run against model here
     X, = prep_data([{"text":safe_text}])

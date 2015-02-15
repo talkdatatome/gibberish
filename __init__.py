@@ -1,6 +1,7 @@
 from flask import Flask
 from gibberish import config
 from celery import Celery
+from gibberish.config import word_rating
 
 app = Flask(__name__)
 app.config['CELERY_BROKER_URL'] = 'amqp://'
@@ -42,5 +43,39 @@ try:
         session.close()
 except OperationalError:
     pass
+
+def sanitize(text):
+    #BAD
+    if(text.islower() and text.isalpha()):
+        clean_text = text.strip()
+    else:
+        text = text.lower()
+        text = sub('[^a-z ]', '', text)
+        clean_text = text.strip()
+        
+    return(clean_text)
+
+def prep_data(input_data):
+    """Expects a list of dicts, text and handFlag"""
+    #run model
+    Xtext = [item['text'] for item in input_data]
+    X = [word_rating.rate(x) for x in Xtext]
+    try:
+        y = [item['flag'] for item in input_data]
+ 
+        return((X, y))
+    except KeyError:
+        return(X)
+
+
+from gibberish.model import Model
+session = Session()
+all_data = session.query(GibData).all()
+all_data_json = [{"text":d.text, "flag":d.handFlag} for d in all_data ] 
+X, y = prep_data(all_data_json)
+
+this_model = Model(X, y)
+
+
 
 from gibberish import views

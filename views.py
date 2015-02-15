@@ -1,48 +1,32 @@
-from flask import Flask, jsonify, url_for, redirect, request, render_template
-from celery import Celery
+from flask import jsonify, url_for, redirect, request, render_template
 import time
 import random
-
-app = Flask(__name__)
-app.config['CELERY_BROKER_URL'] = 'amqp://'
-app.config['CELERY_RESULT_BACKEND'] = 'amqp://'
-
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
-celery.conf.update(app.config)
-
-from sqlalchemy import Column, Integer, String, Boolean, create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-engine = create_engine('sqlite:///gibberish.db')
-Base = declarative_base()
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-
-#session = Session()
-class Gib_data(Base):
-    __tablename__='gib'
-    _id = Column('id', Integer, primary_key=True)
-    text = Column('text', String(length=500))
-    handFlag = Column('handFlag', Boolean)
-
-    def __repr__(self):
-        return("<gib_data(_id='%s', text='%s', handFlag='%s')>" % (self._id, self.text, self.handFlag))
+from re import sub
+from gibberish import app, celery, Session, GibData
+from gibberish.config import word_rating
 
 def sanitize(text):
     #BAD
-    return(text)
+    if(text.islower() and text.isalpha()):
+        clean_text = text.strip()
+    else:
+        text = text.lower()
+        text = sub('[^a-z ]', '', text)
+        clean_text = text.strip()
+        
+    return(clean_text)
 
 @celery.task(bind=True)
 def _eval_model(self, text):
     safe_text = sanitize(text)
     #run against model here
-    return(True)
+    return(word_rating.rate(safe_text))
 
 @celery.task(bind=True)
 def _fit_model(self):
     #grab data from database
     session = Session()
-    all_data = session.query(Gib_data).all()
+    all_data = session.query(GibData).all()
     all_data_json = [{"text":d.text, "flag":d.handFlag} for d in all_data ] 
 
     #run model

@@ -4,6 +4,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 
     <style>
+        input[type=radio]{
+            width:40px;
+            height:40px;
+        }
         .progress {
             width: 100%;
             text-align: center;
@@ -30,6 +34,7 @@
     </form>
     {%endif%}
     <!--<button onclick="start_fit_model();">Start Long Calculation</button><br><br>-->
+    <p>Click below if you want to refit the model after adding new data.</p>
     <button id="start-bg-job">Refit Model</button><br><br>
     <div id="progress"></div>
 

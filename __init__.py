@@ -1,10 +1,11 @@
+import pickle
 from flask import Flask
 from gibberish import config
 from celery import Celery
 from gibberish.config import word_rating
 from re import sub
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 app.config['CELERY_BROKER_URL'] = 'amqp://'
 app.config['CELERY_RESULT_BACKEND'] = 'amqp://'
 
@@ -76,6 +77,7 @@ all_data_json = [{"text":d.text, "flag":d.handFlag} for d in all_data ]
 X, y = prep_data(all_data_json)
 
 this_model = Model(X, y)
-
+with open('rf.model', 'wb') as f:
+    pickle.dump(this_model, f)
 
 from gibberish import views

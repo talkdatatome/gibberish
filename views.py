@@ -1,8 +1,10 @@
+import pickle
 from flask import jsonify, url_for, redirect, request, render_template
 import time
 import random
 from re import sub
 from gibberish import app, celery, Session, GibData, prep_data, sanitize, this_model
+from gibberish.model import Model
 
 @celery.task(bind=True)
 def _eval_model(self, text):
@@ -12,7 +14,10 @@ def _eval_model(self, text):
     safe_text = sanitize(text)
     #run against model here
     X, = prep_data([{"text":safe_text}])
+    with open('rf.model', 'rb') as f:
+        this_model = pickle.load(f)
     prediction = this_model.predict(X)
+    print(this_model)
     return(prediction)#word_rating.rate(safe_text))
 
 @celery.task(bind=True)
@@ -35,7 +40,11 @@ def _fit_model(self):
     message = "Fitting model with " + str(len(y)) + " datapoints."
     self.update_state(state='PROGRESS',
                           meta={'current':2, 'total': total, 'status':message})
-    this_model.fit(X, y)
+    with open('rf.model', 'rb') as f:
+        this_model = pickle.load(f)
+    this_model = this_model.fit(X,y)
+    with open('rf.model', 'wb') as f:
+        pickle.dump(this_model, f)
 #    verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
 #    adj = ['master', 'radiant', 'silent', 'harmonic', 'fast']
 #    noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter', 'it']

@@ -14,6 +14,18 @@
        <input type="text" name="unsafe_text_input" id="unsafe_text_input"></input>
        <input type="submit" value="Submit"></input>
     </form>
+    {% if show %}
+    <div>"{{text}}" is {% if result %}gibberish{% else %} not gibberish.{%endif%}</div>
+    <form action="/add" method="POST">
+        <input type="text" name='for_add_text' id='for_add_text' style="display:none;" value="{{text}}"></div>
+        <input type="text" name='for_add_value_correct'  id='for_add_value_correct' style="display:none;" value="{%if result%}1{%else%}0{%endif%}"></div><!--style="display:none;"-->
+        <input type="text" name='for_add_value_incorrect'  id='for_add_value_incorrect' style="display:none;" value="{%if result%}0{%else%}1{%endif%}"></div><!--style="display:none;"-->
+        <p>Is this classification correct?</p>
+        <input type='radio' name='is_correct' value="True" checked>Yes</input>
+        <input type='radio' name='is_correct' value="False">No</input><br>
+        <input type="submit" value="Add to database"></input>
+    </form>
+    {%endif%}
     <!--<button onclick="start_fit_model();">Start Long Calculation</button><br><br>-->
     <button id="start-bg-job">Refit Model</button><br><br>
     <div id="progress"></div>

@@ -2,6 +2,7 @@ from flask import Flask
 from gibberish import config
 from celery import Celery
 from gibberish.config import word_rating
+from re import sub
 
 app = Flask(__name__)
 app.config['CELERY_BROKER_URL'] = 'amqp://'
@@ -75,7 +76,6 @@ all_data_json = [{"text":d.text, "flag":d.handFlag} for d in all_data ]
 X, y = prep_data(all_data_json)
 
 this_model = Model(X, y)
-
 
 
 from gibberish import views

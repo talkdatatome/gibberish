@@ -3,11 +3,12 @@
     <title>Gibberish</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 
-    <style>
-        input[type=radio]{
+    <!--    input[type=radio]{
             width:40px;
             height:40px;
         }
+    -->
+    <style>
         .progress {
             width: 100%;
             text-align: center;
@@ -15,8 +16,8 @@
         }
     </style>
   </head>
-  <body>
-    <h1>Is it gibberish?<h1>
+  <body class="container">
+    <h1>Is it gibberish?</h1>
     <form action="/eval" method="POST">
        <input type="text" name="unsafe_text_input" id="unsafe_text_input"></input>
        <input type="submit" value="Submit"></input>

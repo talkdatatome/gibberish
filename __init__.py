@@ -30,7 +30,6 @@ class GibData(Base):
         return("<gib_data(_id='%s', text='%s', handFlag='%s')>" % (self._id, self.text, self.handFlag))
 
 engine = create_engine('sqlite:///gibberish.db')
-insp = reflection.Inspector.from_engine(engine)
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
@@ -38,8 +37,8 @@ session = Session()
 try:
     if session.query(GibData).count() == 0:
         init_data = [("i am not gibberish", False), ("this is also a real answer", False), ("baglkd zzzzzzzz", True), ("asdfkadnsknn", True), ("", True)]
-        for x in init_data:
-            new_data = GibData(text=x[0], handFlag=x[1])
+        for text, flag in init_data:
+            new_data = GibData(text=text, handFlag=flag)
             session.add(new_data)
         session.commit()
         session.close()
@@ -48,12 +47,12 @@ except OperationalError:
 
 def sanitize(text):
     #BAD
-    if(text.islower() and text.isalpha()):
-        clean_text = text.strip()
-    else:
-        text = text.lower()
-        text = sub('[^a-z ]', '', text)
-        clean_text = text.strip()
+#   if text.islower() and text.isalpha(): #isalpha treats blanks as not alpha!
+#       clean_text = text.strip()
+#   else:
+    text = text.lower()
+    text = sub('[^a-z ]', '', text)
+    clean_text = text.strip()
         
     return(clean_text)
 

@@ -45,19 +45,6 @@ def _fit_model(self):
     this_model = this_model.fit(X,y)
     with open('rf.model', 'wb') as f:
         pickle.dump(this_model, f)
-#    verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
-#    adj = ['master', 'radiant', 'silent', 'harmonic', 'fast']
-#    noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter', 'it']
-#    message = ''
-#    total = random.randint(5, 10)
-#    for i in range(total):
-#        if not message or random.random() < 0.25:
-#            message = '{0} {1} {2}...'.format(random.choice(verb),
-#                                              random.choice(adj),
-#                                              random.choice(noun))
-#        self.update_state(state='PROGRESS',
-#                          meta={'current':i, 'total': total, 'status':message})
-#        time.sleep(1)
     return({'current':100, 'total':100, 'status': 'Task completed!', 
             'result':"Model updated successfully!"})
 
@@ -118,7 +105,7 @@ def evalstatus(task_id):
         }
     return(jsonify(response))
  
-@app.route('/fit_model', methods=['POST'])
+@app.route('/fit_model', methods=['POST']) #does this even need to be a post since theres no real data?
 def fit_model():
     task = _fit_model.apply_async()
     return jsonify({}), 202, {'Location': url_for('taskstatus', 
